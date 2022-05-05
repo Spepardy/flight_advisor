@@ -26,6 +26,8 @@ if (!isset($_SESSION)) {
 					<?php
 					if ($_SESSION['$role'] == 'administrator') {
 						echo '<li><a href="/flight_advisor/cities/add.php">Add City</a></li>';
+						echo '<li><a href="/flight_advisor/imports/import_routes.bat">Import Routes</a></li>';
+						echo '<li><a href="/flight_advisor/imports/import_airports.bat">Import Airports</a></li>';
 					}
 					?>
 					<?php

@@ -7,6 +7,40 @@ if (isset($_POST['submit'])) {
 
 
     try {
+        //Fetching airports_routes rows/record
+        // preparing a statement
+        $stmt = $db->prepare("SELECT DISTINCT routes.source_airport, airports._name as airport_name, airports.city
+        FROM routes 
+        INNER JOIN airports ON routes.source_airport = airports.iata
+        WHERE airports.city IS NOT NULL"); //GROUP BY cities.id //FOR JSON AUTO
+
+        // preparing a statement
+        //$stmt = $db->prepare("SELECT DISTINCT source_airport FROM routes");
+
+        // execute/run the statement. 
+        $stmt->execute();
+
+        // fetch the result. 
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        //var_dump($result);
+        $resultChecker = count($result);
+
+        if ($resultChecker > 0) {
+            //$airports_routes = $result[0];
+            $airports_routes = $result;
+        }
+        //var_dump($airports_routes);
+
+        $airports_routes_array = array();
+        foreach ($airports_routes as $key => $value) {
+            $airports_routes_array[$value['source_airport']] = $value['city'] . ' (' . $value['airport_name'] . ' => ' . $value['source_airport'] . ')';
+        }
+        //var_dump($airports_routes_array);
+        //exit();
+
+
+
+
         /**
          *  Dijkstra's algorithm in PHP by zairwolf
          * 
@@ -109,7 +143,7 @@ if (isset($_POST['submit'])) {
         //echo "<img src='http://www.you4be.com/dijkstra_algorithm.png'>";
         print '<a href="../ordinary_user_home.php">Home</a>';
         echo "<br /> <h1>Cheapest Route</h1>";
-        echo "<br />From <strong> $source_airport </strong> to <strong> $destination_airport </strong>";
+        echo "<br />From <strong> $airports_routes_array[$source_airport] </strong> to <strong> $airports_routes_array[$destination_airport] </strong>";
         echo "<br />";
         echo "<br />The price is <strong>" . $S[$destination_airport][1] . "</strong>";
         echo "<br />";
@@ -117,6 +151,10 @@ if (isset($_POST['submit'])) {
         echo "<br />Path/route is <strong>" . implode(' => ', $path) . "</strong>";
         echo "<br />";
         //var_dump($path);
+        echo "<br />";
+        foreach ($path as $key => $value) {
+            echo " =====> <strong>" . $airports_routes_array[$value] . "</strong>";
+        }
         exit();
     } catch (Throwable $th) {
         //throw $th;

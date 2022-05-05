@@ -2,7 +2,13 @@
 include_once '../includes/db_connect.php';
 
 // preparing a statement
-$stmt = $db->prepare("SELECT DISTINCT source_airport FROM routes");
+$stmt = $db->prepare("SELECT DISTINCT routes.source_airport, airports._name as airport_name, airports.city
+FROM routes 
+INNER JOIN airports ON routes.source_airport = airports.iata
+WHERE airports.city IS NOT NULL"); //GROUP BY cities.id //FOR JSON AUTO
+
+// preparing a statement
+//$stmt = $db->prepare("SELECT DISTINCT source_airport FROM routes");
 
 // execute/run the statement. 
 $stmt->execute();
@@ -13,10 +19,11 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $resultChecker = count($result);
 
 if ($resultChecker > 0) {
-    //$routes_source_airports = $result[0];
-    $routes_source_airports = $result;
+    //$airports_routes = $result[0];
+    $airports_routes = $result;
 }
-//var_dump($routes_source_airports);
+//var_dump($airports_routes);
+
 ?>
 
 <!DOCTYPE html>
@@ -40,8 +47,8 @@ if ($resultChecker > 0) {
             <select name="source_airport" id="source_airport" required>
                 <option value="">Select Source Airport</option>
                 <?php
-                foreach ($routes_source_airports as $key => $value) {
-                    echo '<option value="'. $value['source_airport'] .'">'. $value['source_airport'] .'</option>';
+                foreach ($airports_routes as $key => $value) {
+                    echo '<option value="'. $value['source_airport'] .'">'. $value['city'] . ' (' . $value['airport_name'] . ' => ' . $value['source_airport'] . ')' .'</option>';
                 }
                 ?>
             </select>
@@ -53,8 +60,8 @@ if ($resultChecker > 0) {
             <select name="destination_airport" id="destination_airport" required>
                 <option value="">Select Destination Airport</option>
                 <?php
-                foreach ($routes_source_airports as $key => $value) {
-                    echo '<option value="'. $value['source_airport'] .'">'. $value['source_airport'] .'</option>';
+                foreach ($airports_routes as $key => $value) {
+                    echo '<option value="'. $value['source_airport'] .'">'. $value['city'] . ' (' . $value['airport_name'] . ' => ' . $value['source_airport'] . ')' .'</option>';
                 }
                 ?>
             </select>
